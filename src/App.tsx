@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { Github, Linkedin, Mail, ExternalLink, ArrowRight, Terminal, Moon, Sun, Code, Sparkles, Star, GitFork, Zap } from 'lucide-react';
+import { 
+  Github, Linkedin, Mail, ExternalLink, ArrowRight, Terminal, Moon, Sun, Code, Sparkles, Star, GitFork, Zap, 
+  FileCode, FileCode2, Cpu, Database, Globe, Smartphone, MonitorSmartphone, Cog, Palette, Layers, 
+  Server, DatabaseZap, GitBranch, Box, Container, Brain
+} from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -9,39 +13,39 @@ function cn(...inputs: any[]) {
 }
 
 const STACK = [
-  { name: 'HTML', category: 'Language', featured: true },
-  { name: 'CSS', category: 'Language', featured: true },
-  { name: 'JavaScript', category: 'Language', featured: true },
-  { name: 'TypeScript', category: 'Language', featured: true },
-  { name: 'PHP', category: 'Language', featured: true },
-  { name: 'Java', category: 'Language', featured: false },
-  { name: 'C++', category: 'Language', featured: false },
-  { name: 'Python', category: 'Language', featured: false },
+  { name: 'HTML', category: 'Language', icon: FileCode, featured: true },
+  { name: 'CSS', category: 'Language', icon: Palette, featured: true },
+  { name: 'JavaScript', category: 'Language', icon: FileCode2, featured: true },
+  { name: 'TypeScript', category: 'Language', icon: Code, featured: true },
+  { name: 'PHP', category: 'Language', icon: FileCode, featured: true },
+  { name: 'Java', category: 'Language', icon: Cpu, featured: false },
+  { name: 'C++', category: 'Language', icon: Cpu, featured: false },
+  { name: 'Python', category: 'Language', icon: Cpu, featured: false },
   
-  { name: 'React.js', category: 'Frontend Framework', featured: true },
-  { name: 'Vue.js', category: 'Frontend Framework', featured: true },
-  { name: 'Next.js', category: 'Frontend Framework', featured: true },
-  { name: 'Ionic', category: 'Frontend Framework', featured: false },
-  { name: 'Tailwind CSS', category: 'Styling', featured: true },
+  { name: 'React.js', category: 'Frontend Framework', icon: Layers, featured: true },
+  { name: 'Vue.js', category: 'Frontend Framework', icon: Layers, featured: true },
+  { name: 'Next.js', category: 'Frontend Framework', icon: Globe, featured: true },
+  { name: 'Ionic', category: 'Frontend Framework', icon: Smartphone, featured: false },
+  { name: 'Tailwind CSS', category: 'Styling', icon: Palette, featured: true },
   
-  { name: 'Laravel', category: 'Backend Framework', featured: true },
-  { name: 'Express.js', category: 'Backend Framework', featured: true },
+  { name: 'Laravel', category: 'Backend Framework', icon: Server, featured: true },
+  { name: 'Express.js', category: 'Backend Framework', icon: Server, featured: true },
   
-  { name: 'MySQL', category: 'Database', featured: true },
-  { name: 'MongoDB', category: 'Database', featured: true },
+  { name: 'MySQL', category: 'Database', icon: Database, featured: true },
+  { name: 'MongoDB', category: 'Database', icon: DatabaseZap, featured: true },
   
-  { name: 'Visual Studio Code', category: 'Dev Tool', featured: true },
-  { name: 'Android Studio', category: 'Dev Tool', featured: false },
-  { name: 'Unity', category: 'Dev Tool', featured: false },
-  { name: 'Git', category: 'Dev Tool', featured: true },
-  { name: 'GitHub', category: 'Dev Tool', featured: true },
-  { name: 'Docker', category: 'Dev Tool', featured: false },
+  { name: 'Visual Studio Code', category: 'Dev Tool', icon: Code, featured: true },
+  { name: 'Android Studio', category: 'Dev Tool', icon: Smartphone, featured: false },
+  { name: 'Unity', category: 'Dev Tool', icon: Box, featured: false },
+  { name: 'Git', category: 'Dev Tool', icon: GitBranch, featured: true },
+  { name: 'GitHub', category: 'Dev Tool', icon: Github, featured: true },
+  { name: 'Docker', category: 'Dev Tool', icon: Container, featured: false },
   
-  { name: 'Kotlin', category: 'Mobile Development', featured: false },
+  { name: 'Kotlin', category: 'Mobile Development', icon: Smartphone, featured: false },
   
-  { name: 'React Native', category: 'Cross-Platform', featured: false },
+  { name: 'React Native', category: 'Cross-Platform', icon: MonitorSmartphone, featured: false },
   
-  { name: 'Machine Learning', category: 'Other Skills', featured: false },
+  { name: 'Machine Learning', category: 'Other Skills', icon: Brain, featured: false },
 ];
 
 interface GitHubRepo {
@@ -287,18 +291,13 @@ const Stack = () => {
             <Reveal key={tech.name} delay={idx * 0.1}>
               <motion.div
                 whileHover={{ y: -8, scale: 1.03 }}
-                className={cn(
-                  "group p-8 border-2 border-border rounded-2xl relative overflow-hidden transition-all duration-300",
-                  tech.featured ? "border-accent/30 bg-accent/5" : "hover:border-accent/30 hover:bg-accent/5"
-                )}
+                className="group p-8 border-2 border-border rounded-2xl relative overflow-hidden transition-all duration-300 hover:border-accent/30 hover:bg-accent/5"
               >
                 <div className="absolute top-6 right-6 w-4 h-4 rounded-full bg-muted-foreground group-hover:bg-accent transition-all duration-300 scale-75 group-hover:scale-100" />
                 
-                <div className="flex flex-col gap-3">
-                  <span className={cn(
-                    "text-3xl font-black group-hover:text-accent transition-colors duration-300",
-                    tech.featured ? "text-accent" : "text-foreground"
-                  )}>
+                <div className="flex flex-col gap-4">
+                  <tech.icon className="w-10 h-10 text-muted-foreground group-hover:text-accent transition-colors duration-300" />
+                  <span className="text-3xl font-black group-hover:text-accent transition-colors duration-300 text-foreground">
                     {tech.name}
                   </span>
                   <span className="text-muted-foreground font-mono text-sm uppercase tracking-widest">
