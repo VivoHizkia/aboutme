@@ -9,15 +9,39 @@ function cn(...inputs: any[]) {
 }
 
 const STACK = [
+  { name: 'HTML', category: 'Language', featured: true },
+  { name: 'CSS', category: 'Language', featured: true },
+  { name: 'JavaScript', category: 'Language', featured: true },
   { name: 'TypeScript', category: 'Language', featured: true },
-  { name: 'Bun', category: 'Runtime', featured: true },
-  { name: 'Prisma ORM', category: 'Database', featured: true },
-  { name: 'React', category: 'Frontend', featured: true },
-  { name: 'Vite', category: 'Bundler', featured: true },
+  { name: 'PHP', category: 'Language', featured: true },
+  { name: 'Java', category: 'Language', featured: false },
+  { name: 'C++', category: 'Language', featured: false },
+  { name: 'Python', category: 'Language', featured: false },
+  
+  { name: 'React.js', category: 'Frontend Framework', featured: true },
+  { name: 'Vue.js', category: 'Frontend Framework', featured: true },
+  { name: 'Next.js', category: 'Frontend Framework', featured: true },
+  { name: 'Ionic', category: 'Frontend Framework', featured: false },
   { name: 'Tailwind CSS', category: 'Styling', featured: true },
-  { name: 'shadcn/ui', category: 'Components', featured: false },
-  { name: 'Claude / Copilot', category: 'AI Workflow', featured: false },
-  { name: 'Cursor', category: 'Editor', featured: false },
+  
+  { name: 'Laravel', category: 'Backend Framework', featured: true },
+  { name: 'Express.js', category: 'Backend Framework', featured: true },
+  
+  { name: 'MySQL', category: 'Database', featured: true },
+  { name: 'MongoDB', category: 'Database', featured: true },
+  
+  { name: 'Visual Studio Code', category: 'Dev Tool', featured: true },
+  { name: 'Android Studio', category: 'Dev Tool', featured: false },
+  { name: 'Unity', category: 'Dev Tool', featured: false },
+  { name: 'Git', category: 'Dev Tool', featured: true },
+  { name: 'GitHub', category: 'Dev Tool', featured: true },
+  { name: 'Docker', category: 'Dev Tool', featured: false },
+  
+  { name: 'Kotlin', category: 'Mobile Development', featured: false },
+  
+  { name: 'React Native', category: 'Cross-Platform', featured: false },
+  
+  { name: 'Machine Learning', category: 'Other Skills', featured: false },
 ];
 
 interface GitHubRepo {
@@ -222,7 +246,7 @@ const Hero = () => {
         <Reveal delay={0.8}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-border pt-12">
             {[
-              { label: 'Years Experience', value: '2+', icon: Code },
+              { label: 'Years Experience', value: '3+', icon: Code },
               { label: 'Projects Completed', value: '20+', icon: Sparkles },
               { label: 'Coffee Brewed', value: '∞', icon: Terminal }
             ].map((stat, i) => (
