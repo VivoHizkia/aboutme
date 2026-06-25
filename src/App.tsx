@@ -289,14 +289,14 @@ const Stack = () => {
                 whileHover={{ y: -8, scale: 1.03 }}
                 className={cn(
                   "group p-8 border-2 border-border rounded-2xl relative overflow-hidden transition-all duration-300",
-                  tech.featured && "border-accent/30 bg-accent/5"
+                  tech.featured ? "border-accent/30 bg-accent/5" : "hover:border-accent/30 hover:bg-accent/5"
                 )}
               >
                 <div className="absolute top-6 right-6 w-4 h-4 rounded-full bg-muted-foreground group-hover:bg-accent transition-all duration-300 scale-75 group-hover:scale-100" />
                 
                 <div className="flex flex-col gap-3">
                   <span className={cn(
-                    "text-3xl font-black",
+                    "text-3xl font-black group-hover:text-accent transition-colors duration-300",
                     tech.featured ? "text-accent" : "text-foreground"
                   )}>
                     {tech.name}
