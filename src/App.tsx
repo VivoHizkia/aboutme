@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { Github, Linkedin, Mail, ExternalLink, ArrowRight, Terminal, Moon, Sun, Code, Sparkles } from 'lucide-react';
+import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { Github, Linkedin, Mail, ExternalLink, ArrowRight, Terminal, Moon, Sun, Code, Sparkles, Star, GitFork, Zap } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -20,32 +20,16 @@ const STACK = [
   { name: 'Cursor', category: 'Editor', featured: false },
 ];
 
-const PROJECTS = [
-  {
-    id: 1,
-    number: '01',
-    name: 'invosync',
-    description: 'Internal invoice management system for MobileData Indonesia. Full-stack with TypeScript, Bun, Prisma, React + Vite.',
-    tags: ['TypeScript', 'Bun', 'Prisma', 'React'],
-    link: 'https://github.com/MobileDataIndonesia/invoice-internal-be',
-  },
-  {
-    id: 2,
-    number: '02',
-    name: 'Project TBA',
-    description: 'Coming soon. Something cool with AI agents.',
-    tags: ['Work in Progress'],
-    link: '#',
-  },
-  {
-    id: 3,
-    number: '03',
-    name: 'Project TBA',
-    description: 'Coming soon. Something with distributed systems.',
-    tags: ['Design Phase'],
-    link: '#',
-  },
-];
+interface GitHubRepo {
+  id: number;
+  name: string;
+  description: string;
+  html_url: string;
+  language: string | null;
+  stargazers_count: number;
+  forks_count: number;
+  created_at: string;
+}
 
 const Navbar = ({ theme, toggleTheme }: { theme: 'dark' | 'light'; toggleTheme: () => void }) => {
   const { scrollY } = useScroll();
@@ -60,37 +44,39 @@ const Navbar = ({ theme, toggleTheme }: { theme: 'dark' | 'light'; toggleTheme: 
     <motion.nav 
       style={{ 
         backgroundColor: bgOpacity, 
-        backdropFilter: 'blur(12px)',
+        backdropFilter: 'blur(20px)',
       }}
       className="fixed top-0 w-full z-50 border-b border-border/0"
       initial={{ borderColor: 'rgba(38, 38, 38, 0)' }}
       animate={{ borderColor: scrollY.get() > 50 ? 'var(--border)' : 'rgba(38, 38, 38, 0)' }}
     >
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <button onClick={() => scrollTo('hero')} className="text-xl font-bold tracking-tight hover:text-accent transition-colors cursor-pointer flex items-center gap-2">
-          <Code className="w-5 h-5 text-accent" />
+      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <button onClick={() => scrollTo('hero')} className="text-2xl font-black tracking-tight hover:text-accent transition-all duration-300 cursor-pointer flex items-center gap-3 group">
+          <div className="p-2 bg-accent/10 border border-accent/30 rounded-lg group-hover:bg-accent/20 transition-all duration-300">
+            <Code className="w-6 h-6 text-accent" />
+          </div>
           vivo<span className="text-accent">.dev</span>
         </button>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8">
           {['Stack', 'Projects', 'Contact'].map((item) => (
             <button 
               key={item}
               onClick={() => scrollTo(item.toLowerCase())}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer relative group"
+              className="text-base font-semibold text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer relative group"
             >
               {item}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300" />
+              <span className="absolute -bottom-2 left-0 w-0 h-1 bg-accent rounded-full group-hover:w-full transition-all duration-300" />
             </button>
           ))}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-[3px] border border-border hover:border-accent hover:text-accent transition-all duration-300"
+            className="p-3 border-2 border-border hover:border-accent hover:text-accent hover:bg-accent/5 transition-all duration-300 rounded-xl"
             aria-label="Toggle theme"
           >
             {theme === 'dark' ? (
-              <Sun className="w-5 h-5" />
+              <Sun className="w-6 h-6" />
             ) : (
-              <Moon className="w-5 h-5" />
+              <Moon className="w-6 h-6" />
             )}
           </button>
         </div>
@@ -99,106 +85,160 @@ const Navbar = ({ theme, toggleTheme }: { theme: 'dark' | 'light'; toggleTheme: 
   );
 };
 
+const Reveal = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ duration: 0.8, delay, ease: [0.21, 0.61, 0.35, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
 const Hero = () => {
   return (
-    <section id="hero" className="min-h-screen flex flex-col justify-center pt-16 pb-24 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.03]" 
-           style={{ 
-             backgroundImage: 'linear-gradient(var(--accent) 1px, transparent 1px), linear-gradient(90deg, var(--accent) 1px, transparent 1px)', 
-             backgroundSize: '100px 100px'
-           }} 
-      />
+    <section id="hero" className="min-h-screen flex flex-col justify-center pt-24 pb-32 relative overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 opacity-[0.06]" 
+             style={{ 
+               backgroundImage: 'linear-gradient(var(--accent) 1px, transparent 1px), linear-gradient(90deg, var(--accent) 1px, transparent 1px)', 
+               backgroundSize: '50px 50px'
+             }} 
+        />
+        {/* Gradient orbs */}
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-[28rem] h-[28rem] bg-accent/20 rounded-full blur-3xl"
+          animate={{ 
+            scale: [1, 1.3, 1], 
+            x: [0, 50, 0],
+            y: [0, -30, 0],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-[24rem] h-[24rem] bg-accent/10 rounded-full blur-3xl"
+          animate={{ 
+            scale: [1, 1.4, 1], 
+            x: [0, -40, 0],
+            y: [0, 40, 0],
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        />
+      </div>
       
-      {/* Creative floating elements */}
+      {/* Floating shapes */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[...Array(8)].map((_, i) => (
+        {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 bg-accent rounded-full"
+            className={cn(
+              "absolute rounded-full",
+              i % 3 === 0 ? "w-4 h-4 bg-accent" :
+              i % 3 === 1 ? "w-3 h-3 bg-accent/70" : "w-5 h-2 bg-accent/50"
+            )}
             initial={{ 
-              x: `${Math.random() * 100}%`, 
-              y: `${Math.random() * 100}%`,
-              opacity: 0.3
+              x: `${10 + Math.random() * 80}%`,
+              y: `${10 + Math.random() * 80}%`,
+              opacity: 0.4,
+              rotate: 0
             }}
             animate={{ 
-              y: [null, `calc(${Math.random() * 100}% - 20px)`],
-              opacity: [0.3, 0.8, 0.3],
-              scale: [1, 1.5, 1]
+              y: [null, `calc(${10 + Math.random() * 80}% - 60px)`],
+              opacity: [0.4, 1, 0.4],
+              scale: [1, 2.5, 1],
+              rotate: [0, 270, 360]
             }}
             transition={{ 
-              duration: 3 + Math.random() * 4, 
+              duration: 5 + Math.random() * 8, 
               repeat: Infinity, 
               ease: "easeInOut",
-              delay: i * 0.5
+              delay: i * 0.4
             }}
           />
         ))}
       </div>
       
       <div className="max-w-7xl mx-auto px-6 w-full relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <Sparkles className="w-5 h-5 text-accent" />
-            <p className="font-mono text-accent text-sm tracking-widest">
-              FULL-STACK ENGINEER // JAKARTA, ID
+        <Reveal>
+          <div className="flex items-center gap-4 mb-8">
+            <div className="p-3 border-2 border-accent/30 bg-accent/10 rounded-xl">
+              <Zap className="w-8 h-8 text-accent fill-accent/20" />
+            </div>
+            <p className="font-mono text-accent text-base tracking-widest">
+              FULL-STACK ENGINEER • JAKARTA, INDONESIA
             </p>
           </div>
-          
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold leading-[0.9] mb-8 tracking-tighter">
+        </Reveal>
+        
+        <Reveal delay={0.2}>
+          <h1 className="text-7xl md:text-9xl lg:text-[12rem] font-black leading-[0.82] mb-12 tracking-tighter">
             <span className="text-accent relative inline-block">
               Vivo
               <motion.span 
-                className="absolute -bottom-2 left-0 w-full h-1 bg-accent"
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ duration: 0.8, delay: 0.5 }}
+                className="absolute -bottom-4 left-0 w-full h-3 bg-accent/40 rounded-full"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: '100%', opacity: 1 }}
+                transition={{ duration: 1.2, delay: 0.8 }}
               />
             </span>
             <br />
             <span className="text-foreground">Hizkia</span>
           </h1>
-          
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-12 leading-relaxed">
-            Building digital infrastructure with strong types, fast runtimes, and a bit of obsessive-compulsive organization.
+        </Reveal>
+        
+        <Reveal delay={0.4}>
+          <p className="text-2xl md:text-3xl text-muted-foreground max-w-4xl mb-16 leading-relaxed">
+            Crafting pixel-perfect digital experiences with strong types, blazing-fast runtimes, and a little dash of perfectionism.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 mb-20">
+        </Reveal>
+        
+        <Reveal delay={0.6}>
+          <div className="flex flex-col sm:flex-row gap-6 mb-28">
             <button 
               onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
-              className="group flex items-center justify-center gap-2 bg-accent text-accent-foreground px-8 py-4 font-semibold text-lg hover:scale-105 transition-all rounded-[3px] shadow-lg hover:shadow-accent/20"
+              className="group flex items-center justify-center gap-4 bg-accent text-accent-foreground px-12 py-6 font-black text-2xl hover:scale-[1.03] hover:shadow-[0_0_50px_rgba(74,227,160,0.3)] transition-all duration-300 rounded-2xl relative overflow-hidden"
             >
-              View Projects
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <span className="relative z-10">Explore My Work</span>
+              <ArrowRight className="w-8 h-8 group-hover:translate-x-3 transition-transform duration-300" />
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
             </button>
             <button 
               onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-              className="flex items-center justify-center gap-2 border border-border text-foreground px-8 py-4 font-semibold text-lg hover:border-accent hover:text-accent transition-colors rounded-[3px]"
+              className="group flex items-center justify-center gap-4 border-2 border-border text-foreground px-12 py-6 font-black text-2xl hover:border-accent hover:text-accent hover:bg-accent/5 transition-all duration-300 rounded-2xl"
             >
-              Get In Touch
+              Let's Connect
+              <Mail className="w-7 h-7 group-hover:translate-x-2 transition-transform duration-300" />
             </button>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border-t border-border pt-8">
+        </Reveal>
+        
+        <Reveal delay={0.8}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-border pt-12">
             {[
-              { label: 'Years Experience', value: '2+' },
-              { label: 'Projects Shipped', value: '15+' },
-              { label: 'Coffee Consumed', value: '∞' }
+              { label: 'Years Experience', value: '2+', icon: Code },
+              { label: 'Projects Completed', value: '20+', icon: Sparkles },
+              { label: 'Coffee Brewed', value: '∞', icon: Terminal }
             ].map((stat, i) => (
               <motion.div 
                 key={i} 
-                className="flex flex-col gap-1 p-4 border border-border rounded-[3px] hover:border-accent/50 hover:bg-accent/5 transition-all"
-                whileHover={{ y: -4 }}
+                className="flex flex-col gap-4 p-8 border-2 border-border rounded-2xl hover:border-accent/30 hover:bg-accent/5 transition-all duration-300 group"
+                whileHover={{ y: -12, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 400 }}
               >
-                <span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">{stat.label}</span>
-                <span className="text-3xl font-bold text-foreground">{stat.value}</span>
+                <stat.icon className="w-12 h-12 text-accent group-hover:scale-125 transition-transform duration-300" />
+                <span className="text-5xl font-black text-foreground">{stat.value}</span>
+                <span className="font-mono text-muted-foreground text-sm uppercase tracking-widest">{stat.label}</span>
               </motion.div>
             ))}
           </div>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   );
@@ -206,44 +246,43 @@ const Hero = () => {
 
 const Stack = () => {
   return (
-    <section id="stack" className="py-24 border-t border-border">
+    <section id="stack" className="py-32 border-t border-border">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="mb-12">
-          <h2 className="text-4xl font-bold mb-2 flex items-center gap-3">
-            Tech Stack
-            <Sparkles className="w-6 h-6 text-accent" />
-          </h2>
-          <p className="text-muted-foreground font-mono text-sm">// The tools I use daily</p>
-        </div>
+        <Reveal>
+          <div className="mb-16">
+            <h2 className="text-6xl font-black mb-4 flex items-center gap-4">
+              Tech Stack
+              <Sparkles className="w-10 h-10 text-accent" />
+            </h2>
+            <p className="text-2xl text-muted-foreground font-mono">// The tools I use daily</p>
+          </div>
+        </Reveal>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {STACK.map((tech, idx) => (
-            <motion.div
-              key={tech.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.05 }}
-              whileHover={{ y: -4, scale: 1.02 }}
-              className={cn(
-                "group p-6 border border-border rounded-[3px] relative overflow-hidden transition-all",
-                tech.featured && "border-accent/30 bg-accent/5"
-              )}
-            >
-              <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-muted-foreground group-hover:bg-accent transition-colors duration-300" />
-              
-              <div className="flex flex-col gap-1">
-                <span className={cn(
-                  "text-xl font-bold",
-                  tech.featured ? "text-accent" : "text-foreground"
-                )}>
-                  {tech.name}
-                </span>
-                <span className="text-muted-foreground font-mono text-xs uppercase">
-                  {tech.category}
-                </span>
-              </div>
-            </motion.div>
+            <Reveal key={tech.name} delay={idx * 0.1}>
+              <motion.div
+                whileHover={{ y: -8, scale: 1.03 }}
+                className={cn(
+                  "group p-8 border-2 border-border rounded-2xl relative overflow-hidden transition-all duration-300",
+                  tech.featured && "border-accent/30 bg-accent/5"
+                )}
+              >
+                <div className="absolute top-6 right-6 w-4 h-4 rounded-full bg-muted-foreground group-hover:bg-accent transition-all duration-300 scale-75 group-hover:scale-100" />
+                
+                <div className="flex flex-col gap-3">
+                  <span className={cn(
+                    "text-3xl font-black",
+                    tech.featured ? "text-accent" : "text-foreground"
+                  )}>
+                    {tech.name}
+                  </span>
+                  <span className="text-muted-foreground font-mono text-sm uppercase tracking-widest">
+                    {tech.category}
+                  </span>
+                </div>
+              </motion.div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -251,57 +290,92 @@ const Stack = () => {
   );
 };
 
-const Projects = () => {
+const Projects = ({ repos, loading, error }: { repos: GitHubRepo[], loading: boolean, error: string | null }) => {
   return (
-    <section id="projects" className="py-24 border-t border-border">
+    <section id="projects" className="py-32 border-t border-border">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="mb-12">
-          <h2 className="text-4xl font-bold mb-2 flex items-center gap-3">
-            Selected Work
-            <Code className="w-6 h-6 text-accent" />
-          </h2>
-          <p className="text-muted-foreground font-mono text-sm">// A curated list of things I've built</p>
-        </div>
+        <Reveal>
+          <div className="mb-16">
+            <h2 className="text-6xl font-black mb-4 flex items-center gap-4">
+              GitHub Projects
+              <Code className="w-10 h-10 text-accent" />
+            </h2>
+            <p className="text-2xl text-muted-foreground font-mono">// All my open-source projects</p>
+          </div>
+        </Reveal>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {PROJECTS.map((project, idx) => (
-            <motion.a
-              key={project.id}
-              href={project.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              whileHover={{ y: -4 }}
-              className="group relative border border-border p-6 flex flex-col hover:border-accent/50 transition-all rounded-[3px]"
-            >
-              <div className="flex justify-between items-start mb-6">
-                <span className="font-mono text-muted-foreground text-sm">{project.number}</span>
-                <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-              </div>
-              
-              <h3 className="text-2xl font-bold mb-3 group-hover:text-accent transition-colors">
-                {project.name}
-              </h3>
-              
-              <p className="text-muted-foreground mb-6 flex-grow">
-                {project.description}
-              </p>
-              
-              <div className="flex flex-wrap gap-2 mt-auto">
-                {project.tags.map(tag => (
-                  <span key={tag} className="text-xs font-mono text-muted-foreground border border-border px-2 py-1 rounded-[2px]">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              
-              <div className="absolute bottom-0 left-0 w-0 h-1 bg-accent group-hover:w-full transition-all duration-300 ease-out" />
-            </motion.a>
-          ))}
-        </div>
+        {loading && (
+          <Reveal>
+            <div className="flex justify-center items-center py-24">
+              <div className="animate-spin rounded-full h-20 w-20 border-4 border-accent border-t-transparent"></div>
+            </div>
+          </Reveal>
+        )}
+        
+        {error && (
+          <Reveal>
+            <div className="text-center py-24 text-muted-foreground">
+              <p className="text-2xl">{error}</p>
+            </div>
+          </Reveal>
+        )}
+        
+        {!loading && !error && repos.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {repos
+              .filter(repo => repo.name.toLowerCase() !== "aboutme")
+              .map((repo, idx) => (
+              <Reveal key={repo.id} delay={idx * 0.08}>
+                <motion.a
+                  href={repo.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ y: -12, scale: 1.02 }}
+                  className="group relative border-2 border-border p-8 flex flex-col hover:border-accent/30 transition-all duration-300 rounded-2xl"
+                >
+                  <div className="flex justify-between items-start mb-8">
+                    <span className="font-mono text-muted-foreground text-lg font-bold">{String(idx + 1).padStart(2, '0')}</span>
+                    <ExternalLink className="w-7 h-7 text-muted-foreground group-hover:text-accent group-hover:translate-x-2 group-hover:-translate-y-2 transition-all duration-300" />
+                  </div>
+                  
+                  <h3 className="text-3xl font-black mb-4 group-hover:text-accent transition-colors duration-300">
+                    {repo.name}
+                  </h3>
+                  
+                  <p className="text-muted-foreground text-lg mb-8 flex-grow leading-relaxed">
+                    {repo.description || 'No description available'}
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-4 mt-auto">
+                    {repo.language && (
+                      <span className="flex items-center gap-2 text-sm font-mono text-muted-foreground border-2 border-border px-4 py-2 rounded-xl">
+                        {repo.language}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-2 text-sm font-mono text-muted-foreground border-2 border-border px-4 py-2 rounded-xl">
+                      <Star className="w-4 h-4" />
+                      {repo.stargazers_count}
+                    </span>
+                    <span className="flex items-center gap-2 text-sm font-mono text-muted-foreground border-2 border-border px-4 py-2 rounded-xl">
+                      <GitFork className="w-4 h-4" />
+                      {repo.forks_count}
+                    </span>
+                  </div>
+                  
+                  <div className="absolute bottom-0 left-0 w-0 h-2 bg-accent rounded-t-xl group-hover:w-full transition-all duration-400 ease-out" />
+                </motion.a>
+              </Reveal>
+            ))}
+          </div>
+        )}
+        
+        {!loading && !error && repos.length === 0 && (
+          <Reveal>
+            <div className="text-center py-24 text-muted-foreground">
+              <p className="text-2xl">No repositories found</p>
+            </div>
+          </Reveal>
+        )}
       </div>
     </section>
   );
@@ -309,43 +383,46 @@ const Projects = () => {
 
 const Contact = () => {
   return (
-    <section id="contact" className="py-24 border-t border-border">
+    <section id="contact" className="py-32 border-t border-border">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="bg-background border border-border p-12 md:p-20 rounded-[3px] relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-accent opacity-10 blur-3xl" />
-          
-          <div className="relative z-10">
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              Let's build something <br />
-              <span className="text-accent">together</span>.
-            </h2>
+        <Reveal>
+          <div className="bg-background border-2 border-border p-16 md:p-24 rounded-3xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-accent opacity-10 blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-accent opacity-5 blur-3xl" />
             
-            <p className="text-muted-foreground text-lg max-w-2xl mb-10">
-              Open to interesting engineering roles, freelance collaborations, and conversations about AI-assisted development.
-            </p>
-            
-            <div className="flex flex-wrap gap-4 mb-12">
-              <a 
-                href="mailto:vivoimanuel22@gmail.com" 
-                className="flex items-center gap-2 bg-accent text-accent-foreground px-6 py-3 font-bold hover:scale-105 transition-all rounded-[3px] shadow-lg"
-              >
-                <Mail className="w-4 h-4" />
-                vivoimanuel22@gmail.com
-              </a>
-            </div>
-            
-            <div className="flex gap-6">
-              <a href="https://github.com/VivoHizkia" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-accent transition-colors flex items-center gap-2 text-lg">
-                <Github className="w-5 h-5" />
-                <span className="hidden sm:inline">GitHub</span>
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-accent transition-colors flex items-center gap-2 text-lg">
-                <Linkedin className="w-5 h-5" />
-                <span className="hidden sm:inline">LinkedIn</span>
-              </a>
+            <div className="relative z-10">
+              <h2 className="text-6xl md:text-7xl font-black mb-8 leading-tight">
+                Let's build something <br />
+                <span className="text-accent">amazing</span>.
+              </h2>
+              
+              <p className="text-2xl text-muted-foreground max-w-3xl mb-12 leading-relaxed">
+                Open to interesting engineering roles, freelance collaborations, and deep conversations about AI-assisted development.
+              </p>
+              
+              <div className="flex flex-wrap gap-6 mb-16">
+                <a 
+                  href="mailto:vivoimanuel22@gmail.com" 
+                  className="flex items-center gap-4 bg-accent text-accent-foreground px-10 py-5 font-black text-xl hover:scale-[1.05] hover:shadow-2xl hover:shadow-accent/30 transition-all duration-300 rounded-2xl"
+                >
+                  <Mail className="w-7 h-7" />
+                  vivoimanuel22@gmail.com
+                </a>
+              </div>
+              
+              <div className="flex gap-8">
+                <a href="https://github.com/VivoHizkia" target="_blank" rel="noreferrer" className="flex items-center gap-3 text-muted-foreground hover:text-accent hover:scale-110 transition-all duration-300 text-2xl font-semibold">
+                  <Github className="w-8 h-8" />
+                  <span className="hidden sm:inline">GitHub</span>
+                </a>
+                <a href="#" className="flex items-center gap-3 text-muted-foreground hover:text-accent hover:scale-110 transition-all duration-300 text-2xl font-semibold">
+                  <Linkedin className="w-8 h-8" />
+                  <span className="hidden sm:inline">LinkedIn</span>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -353,14 +430,14 @@ const Contact = () => {
 
 const Footer = () => {
   return (
-    <footer className="py-8 border-t border-border">
-      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p className="text-muted-foreground font-mono text-sm">
+    <footer className="py-12 border-t border-border">
+      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+        <p className="text-muted-foreground font-mono text-lg">
           © 2025 Vivo — Built with TypeScript & good vibes.
         </p>
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Terminal className="w-4 h-4" />
-          <span className="font-mono text-xs">v1.0.0</span>
+        <div className="flex items-center gap-3 text-muted-foreground">
+          <Terminal className="w-6 h-6" />
+          <span className="font-mono text-sm">v1.0.0</span>
         </div>
       </div>
     </footer>
@@ -378,6 +455,10 @@ const App = () => {
     }
     return 'light';
   });
+  
+  const [repos, setRepos] = useState<GitHubRepo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Apply theme to document
@@ -390,18 +471,37 @@ const App = () => {
     // Save to localStorage
     localStorage.setItem('theme', theme);
   }, [theme]);
+  
+  useEffect(() => {
+    // Fetch GitHub repos
+    const fetchRepos = async () => {
+      try {
+        const response = await fetch('https://api.github.com/users/VivoHizkia/repos?sort=updated&per_page=100');
+        if (!response.ok) throw new Error('Failed to fetch repos');
+        const data = await response.json();
+        setRepos(data);
+      } catch (err) {
+        setError('Failed to load repositories');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchRepos();
+  }, []);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
   return (
-    <div className={cn("min-h-screen bg-background text-foreground selection:bg-accent selection:text-accent-foreground", theme === 'dark' ? 'dark' : '')}>
+    <div className={cn("min-h-screen bg-background text-foreground selection:bg-accent selection:text-accent-foreground transition-colors duration-500", theme === 'dark' ? 'dark' : '')}>
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       <main>
         <Hero />
         <Stack />
-        <Projects />
+        <Projects repos={repos} loading={loading} error={error} />
         <Contact />
       </main>
       <Footer />
